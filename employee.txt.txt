@@ -1,0 +1,2 @@
+emp1,123,1,Ahmed,1,03001112222,ahmed@gmail.com,Lahore,Manager,50000
+emp2,123,2,Sara,2,03002223333,sara@gmail.com,Karachi,Cashier,40000

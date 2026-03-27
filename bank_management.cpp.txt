@@ -1,0 +1,3244 @@
+#include<iostream>
+#include<sstream>
+#include<string>
+#include<vector>
+#include<fstream>
+#define WHITE 0
+#define BLACK 8
+#define GREY 90
+#define RED 91
+#define GREEN 92
+#define YELLOW 93
+#define DARKBLUE 94
+#define PURPLE 95
+#define LIGHTBLUE 96
+#define BOLD 1
+#define ITALIC 3
+#define UNDERLINE 4
+#define BACKGROUND 7
+using namespace std;
+
+void SetColour(int textcolour)
+{
+    cout<<"\033["<<textcolour<<"m";
+}
+void ResetColour()
+{
+    SetColour(WHITE);
+}
+void ClearScreen()
+{
+    system("cls");
+}
+
+enum GENDER
+{
+    Male=1,Female=2
+};
+GENDER GetGenderFromUser()
+{
+    int genderInput;
+    while(true)
+    {
+    cout<<"Enter gender (1 for Male, 2 for Female) : ";
+    cin>>genderInput;
+    switch(genderInput)
+    {
+        case 1:
+            return Male;
+        case 2:
+            return Female;
+        default:
+            cout<<"Invalid input! \nPlease enter 1 or 2 : "<<endl;
+    }
+    }
+}
+
+class Date
+{
+private:
+	int dd,mm,yyyy;
+public:
+	Date() 
+    {
+		dd = 1;
+		mm = 1;
+		yyyy = 2021;
+	}
+	Date(int d, int m, int y) 
+    {
+		dd = d;
+		mm = m;
+		yyyy = y;
+	}
+    Date(const Date& temp)
+    {
+        dd = temp.dd;
+        mm = temp.mm;
+        yyyy = temp.yyyy;
+    }
+    void SetDate(int d,int m,int y)
+    {
+        dd = d;
+        mm= m;
+        yyyy = y;
+    }
+    int GetDay()
+    {
+        return dd;
+    }
+    int GetMonth()
+    {
+        return mm;
+    }
+    int GetYear()
+    {
+        return yyyy;
+    }
+    void AddDate()
+    {
+    while(true){
+        cout<<"Enter date (dd mm yyyy) : ";
+        cin>>dd>>mm>>yyyy;
+        if(yyyy < 1900 || yyyy > 2100) 
+        {
+            cout<<"Invalid year! Please enter a year between 1900 and 2100."<<endl;
+            continue;
+        }
+        if(mm < 1 || mm > 12) 
+        {
+            cout<<"Invalid month! Please enter a month between 1 and 12."<<endl;
+            continue;
+        }
+        if(dd < 1 || dd > 31 || (mm == 2 && dd > 29) || ((mm == 4 || mm == 6 || mm == 9 || mm == 11) && dd > 30)) 
+        {
+            cout<<"Invalid day! Please enter a valid day for the given month."<<endl;
+            continue;
+        }
+        break;
+    }
+    }
+    //void Display(){
+    //   cout<<dd<<"/"<<mm<<"/"<<yyyy;
+    //}
+    string DisplayDateInString()
+    {
+        stringstream ss;
+        ss<<dd<<"/"<<mm<<"/"<<yyyy;
+        return ss.str();
+    }
+    bool Compare(const Date& date)
+    {
+        if((dd == date.dd) && (mm == date.mm) && (yyyy == date.yyyy))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+};
+
+enum USERTYPE 
+{
+    UNKNOWN,ADMIN,EMPLOYEE,ACCOUNT_HOLDER
+};
+
+class Person
+{
+private:
+	string Contact;
+	string Email;
+	string Address;
+    string username;
+    string password;
+
+public:
+	string Name;
+	GENDER Gender;
+
+	Person() {
+		Name = "";
+		Contact = "";
+		Gender = Male;
+		Email = "";
+		Address = "";
+        username = "";
+        password = "";
+	}
+    Person(string u, string p)
+    {
+        username = u;
+        password = p;
+    }
+	Person(string name,string con,GENDER gen, string email,string add,string user,string pass) {
+		Name = name;
+		Contact = con;
+		Gender = gen;
+		Email = email;
+		Address = add;
+        username = user;
+        password = pass;
+	}
+    Person(const Person& temp){
+        Name = temp.Name;
+		Contact = temp.Contact;
+		Gender = temp.Gender;
+		Email = temp.Email;
+		Address = temp.Address;
+        username = temp.username;
+        password = temp.password;
+    }
+	void SetPerson(string con, string email, string add, string user, string pass) {
+		Email = email;
+		Address = add;
+		Contact = con;
+        username = user;
+        password = pass;
+	}
+	string GetEmail() const
+    {
+		return Email;
+	}
+	string GetAddress() const
+    {
+		return Address;
+	}
+	string GetContact() const
+    {
+		return Contact;
+	}
+    string GetUsername() const
+    {
+        return username;
+    }   
+    string GetPassword() const
+    {
+        return password;
+    }
+    void SetGender(){
+        Gender = GetGenderFromUser();
+    }
+    virtual USERTYPE GetUserType()
+    {
+        return USERTYPE::UNKNOWN;
+    }
+};
+
+class Admin : public Person
+{
+public:
+    Admin() : Person() {}
+    Admin(string u, string p) : Person(u,p) {}
+    Admin(string name, string contact, GENDER gender, string email, string address, string username, string password)
+    : Person(name, contact, gender, email, address, username, password) {}
+
+    Admin(const Admin& temp) : Person(temp) {}
+    void Display() const
+    {
+        cout<<"--------------Admin Details------------------"<<endl;
+        cout<<"Admin Username : "<<GetUsername()<<endl;  
+        cout<<"Admin Password : "<<GetPassword()<<endl;
+        cout<<"Admin Name : "<<Name<<endl;
+    }
+    void ReadString(string line){
+        size_t pos = 0;
+        string token;
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        GetUsername() = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        GetPassword() = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        name = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        Gender = stoi(token);
+        line.erase(0, pos + 1);
+        
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        GetContact() = token;
+        line.erase(0, pos + 1);
+        
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        GetEmail() = token;
+        line.erase(0, pos + 1);
+        
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        GetAddress() = token;
+        line.erase(0, pos + 1);
+    }
+    ~Admin() 
+    {
+    }
+};
+
+class AdminCollection : public PersonCollection
+{
+private:
+    vector<Admin> admins;
+public:
+    void AddAdmin(Admin admin) {
+        admins.push_back(admin);
+    }
+    void AddAdmin(string username, string password) {
+        Admin admin(username, password);
+        admins.push_back(admin);
+    }
+    void DisplayAdmins() {
+        for (const auto& admin : admins) {
+            admin.Display();
+        }
+    }
+    Person* SearchAdminByUsername(const string& username, const string& password) 
+    {
+        for (auto& a : admins)
+        {
+            if (a.GetUsername() == username && a.GetPassword() == password)
+            {
+                return &a;
+            }
+        }
+        return nullptr;
+    }
+
+    void WriteDataToFile(const char* filePath)
+    {
+        ofstream fileWriter;
+        fileWriter.open(filePath);
+
+        if(!fileWriter)
+        {
+            cout<<"Error opening file!"<<endl;
+            return;
+        }
+        for(const auto& admin : admins)
+        {
+            fileWriter<<admin.GetUsername()<<","
+                      <<admin.GetPassword()<<","
+                      <<admin.Name<<","
+                      <<admin.GetGender()<<","
+                      <<admin.GetContact()<<","
+                      <<admin.GetEmail()<<","
+                      <<admin.GetAddress()<<"\n";
+        }
+        fileWriter.close();
+    }
+    void ReadDataFromFile(const char* filePath)
+    {
+        ifstream fileReader;
+        fileReader.open(filePath);
+        if(!fileReader)
+        {
+            cout<<"Error opening file!"<<endl;
+            return;
+        }
+        string line;
+        while(getline(fileReader, line))
+        {
+            if(!line.empty())
+            {
+                Admin a;
+                a.ReadString(line);
+                admins.push_back(a);
+            }
+        }
+        fileReader.close();
+    }
+};
+
+class Employee : public Person
+{
+private:
+    int empID;       
+    string empPosition; 
+    double salary;       
+public:
+    Employee() 
+    {
+        empID = 0;
+        empPosition = "";
+        salary = 0.0;
+    }
+    Employee(string u, string p) : Person(u,p) {}
+    Employee(int ID,string position,double sal,string contact,string email, string address,string name,GENDER gender,string user,string pass)
+        : Person(name,contact,gender,email,address,user,pass)
+    {
+        empID = ID;
+        empPosition= position;
+        salary= sal;
+    }
+    Employee(const Employee& temp) : Person(temp)
+    {
+        empID = temp.empID;
+        empPosition = temp.empPosition;
+        salary = temp.salary;
+    }
+    void SetEmployee(int ID,string position,double sal)
+    {
+        empID = ID;
+        empPosition = position;
+        salary = sal;
+    }
+    int GetID() const
+    {
+        return empID;
+    }
+    string GetPosition() const
+    {
+        return empPosition;
+    }    
+    double GetSalary() const
+    {
+        return salary;
+    }
+    void GetEmployee()
+    {
+        cout<<"Enter employee ID : ";
+        cin>>empID;
+        cin.ignore();
+        cout<<"Enter employee name : ";
+        getline(cin,Name);
+        SetGender();
+        cin.ignore();
+        string username;
+        cout<<"Enter username : ";
+        getline(cin,username);
+        cout<<"Enter password : ";
+        string password;
+        getline(cin,password);
+        cout<<"Enter employee position : ";
+        getline(cin,empPosition);
+        cout<<"Enter employee salary : ";
+        cin>>salary;      
+        string contact;
+        cout<<"Enter employee contact : ";
+        getline(cin,contact);
+        cin.ignore();
+        cout<<"Enter employee address : ";
+        string address;
+        getline(cin,address);
+        cout<<"Enter employee email : ";
+        string email;
+        getline(cin,email);
+        SetPerson(contact,email,address,username,password);
+        cout<<"Employee added successfully!"<<endl;      
+    }
+    void Display() const
+    {
+        cout<<"--------------Employee Details---------------"<<endl;
+        cout<<"Employee Username : "<<GetUsername()<<endl;  
+        cout<<"Employee Password : "<<GetPassword()<<endl;
+        cout<<"Employee ID : "<<GetID()<<endl;
+        cout<<"Employee Name : "<<Name<<endl;
+        cout<<"Employee Gender : ";
+        if(Gender == Male)
+        {
+            cout<<"Male"<<endl;
+        }
+        else
+        {
+            cout<<"Female"<<endl;
+        }
+        cout<<"Employee Position : "<<GetPosition()<<endl;
+        cout<<"Employee Salary : "<<GetSalary()<<endl;
+        cout<<"Employee Contact : "<<GetContact()<<endl;
+        cout<<"Employee Address : "<<GetAddress()<<endl;
+        cout<<"Employee Email : "<<GetEmail()<<endl;
+        cout<<"---------------------------------------------"<<endl; 
+    }
+    void ReadString(string line){
+        size_t pos = 0;
+        string token;
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        GetUsername() = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        GetPassword() = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        empID = stoi(token);
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        Name = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        Gender = stoi(token);
+        line.erase(0, pos + 1);
+        
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        GetContact() = token;
+        line.erase(0, pos + 1);
+        
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        GetEmail() = token;
+        line.erase(0, pos + 1);
+        
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        GetAddress() = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        empPosition = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        salary = stoi(token);
+        line.erase(0, pos + 1);
+    }
+    ~Employee()
+    {
+    }
+};
+
+class EmployeeCollection : public PersonCollection
+{
+private:
+    vector<Employee> employees;
+public:
+    void AddEmployees(Employee emp)
+    {
+        employees.push_back(emp);
+    }
+    void AddEmployee(string username, string password) {
+        Employee emp(username, password);
+        employees.push_back(emp);
+    }
+    void DisplayEmployees()
+    {
+        for(const auto& emp : employees){
+            emp.Display();
+        }
+    }
+
+    Employee* SearchEmployeeByID(int id)
+    {
+    for(auto& emp : employees)
+        {
+        if(emp.GetID() == id)
+            {
+                return &emp;
+            }
+        }
+        return nullptr;
+    }
+
+    Employee* SearchEmployeeByName(string name)
+    {
+        for(auto& emp : employees)
+        {
+            if(emp.Name == name)
+            {
+                return &emp;
+            }
+        }
+        return nullptr;
+    }
+    Person* SearchEmployeeByUsername(const string& username, const string& password) 
+    {
+        for (auto& emp : employees) 
+        {
+            if (emp.GetUsername() == username && emp.GetPassword() == password) 
+            {
+                return &emp;
+            }
+        }
+        return nullptr;
+    }
+    bool DeleteEmployee(int id)
+    {
+        for(auto it = employees.begin(); it != employees.end(); ++it)
+        {
+            if(it->GetID() == id)
+            {
+                employees.erase(it);
+                return true;
+            }
+        }
+        return false;
+    }
+    void WriteDataToFile(const char* filePath)
+    {
+        ofstream fileWriter;
+        fileWriter.open(filePath);
+
+        if(!fileWriter)
+        {
+            cout<<"Error opening file!"<<endl;
+            return;
+        }
+        for(const auto& emp : employees)
+        {
+            fileWriter<<emp.GetUsername()<<","
+                      <<emp.GetPassword()<<","
+                      <<emp.GetID()<<","
+                      <<emp.Name<<","
+                      <<emp.Gender<<","
+                      <<emp.GetContact()<<","
+                      <<emp.GetAddress()<<","
+                      <<emp.GetEmail()<<","
+                      <<emp.empPosition()<<","
+                      <<emp.GetSalary()<<"\n";
+        }
+        fileWriter.close();
+    }
+    void ReadDataFromFile(const char* filePath)
+    {
+        ifstream fileReader;
+        fileReader.open(filePath);
+
+        if(!fileReader)
+        {
+            cout<<"Error opening file!"<<endl;
+            return;
+        }
+        string line;
+        while(getline(fileReader, line))
+        {
+            if(!line.empty())
+            {
+                Employee emp;
+                emp.ReadString(line);
+                employees.push_back(emp);
+            }
+        }
+        fileReader.close();
+    }
+};
+
+class Transaction
+{
+private:
+    int transactionID;
+    string senderAccount,receiverAccount;   
+    double transactionAmount; 
+    Date transactionDate;
+    string transactionType,transactionStatus;
+public:
+    Transaction()
+    {
+        transactionID = 0;
+        transactionDate = Date();
+        senderAccount = "";
+        receiverAccount = "";
+        transactionAmount = 0.0;
+        transactionType = "";
+        transactionStatus = "";
+    }
+    Transaction(int ID, double amount,const Date& date,string sender, string receiver, string type, string status)
+    {
+        transactionID = ID;
+        transactionAmount = amount;
+        transactionDate = date;
+        senderAccount = sender;
+        receiverAccount = receiver;
+        transactionType = type;
+        transactionStatus = status;
+    }
+    Transaction(const Transaction& temp)
+    {
+        transactionID = temp.transactionID;
+        transactionAmount = temp.transactionAmount;
+        transactionDate = temp.transactionDate;
+        senderAccount = temp.senderAccount;
+        receiverAccount = temp.receiverAccount;
+        transactionType = temp.transactionType;
+        transactionStatus = temp.transactionStatus;
+    }
+    void SetTransaction(int ID, double amount,const Date& date, string sender, string receiver,string type,string status)
+    {
+        transactionID = ID;
+        transactionAmount = amount;
+        transactionDate = date;
+        senderAccount = sender;
+        receiverAccount = receiver;
+        transactionType = type;
+        transactionStatus = status;
+    }
+    int GetTransactionID() const
+    { 
+        return transactionID; 
+    }
+    double GetTransactionAmount() const
+    {
+        return transactionAmount; 
+    }
+    Date GetTransactionDate() const
+    { 
+        return transactionDate;
+    }
+    string GetSenderAccount() const
+    {
+        return senderAccount; 
+    }
+    string GetReceiverAccount() const
+    { 
+        return receiverAccount; 
+    }
+    string GetTransactionType() const
+    {
+        return transactionType;
+    }
+    string GetTransactionStatus() const
+    {
+        return transactionStatus;
+    }
+    void GetTransaction(){
+        cout<<"Enter transaction ID : ";
+        cin>>transactionID;
+        cin.ignore();
+        cout<<"Enter the transaction type : ";
+        getline(cin,transactionType);
+        cout<<"Enter Sender account details : ";
+        getline(cin,senderAccount);
+        cout<<"Enter reciever account details : ";
+        getline(cin,receiverAccount);
+        cout<<"Enter the transaction amount : ";
+        cin>>transactionAmount;
+        cin.ignore();
+        cout<<"Enter the transaction date : ";
+        transactionDate.AddDate();
+        cout<<"Enter the transaction status : ";
+        getline(cin,transactionStatus);
+        cout<<"Transactions added successfully!"<<endl;
+    }
+    void Display() const
+    {
+        cout<<"-----------Transaction Details-----------"<<endl;
+        cout<<"Transaction ID : "<<GetTransactionID()<<endl;
+        cout<<"TRansaction Type : "<<GetTransactionType()<<endl;
+        cout<<"Sender Account : " <<GetSenderAccount()<<endl;
+        cout<<"Receiver Account : " <<GetReceiverAccount()<<endl;
+        cout<<"Transaction Amount : "<<GetTransactionAmount()<<endl;
+        cout<<"Transaction Date : ";
+        GetTransactionDate().DisplayDateInString(); 
+        cout<<endl;
+        cout<<"Transaction Status: "<<GetTransactionStatus()<<endl;
+        cout<<"-----------------------------------------"<<endl;
+    }
+    void ReadString(string line){
+        size_t pos = 0;
+        string token;
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        transactionID = stoi(token);
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        transactionDate.SetDate(stoi(token),stoi(line.substr(pos+1)),stoi(line.substr(pos+3)));
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        transactionType = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        transactionAmount = stoi(token);
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        senderAccount = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        receiverAccount = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        transactionStatus = token;
+        line.erase(0, pos + 1);
+    }
+    ~Transaction()
+    {
+    }
+};
+
+class TransactionCollection{
+private:
+    vector<Transaction> transactions;
+public:
+    void AddTransaction(Transaction trans)
+    {
+        transactions.push_back(trans);
+    }
+    void DisplayTransactions()
+    {
+        for(const auto& trans : transactions)
+        {
+            trans.Display();
+        }
+    }
+    Transaction* SearchTransactionByID(int id)
+    {
+        for(auto& trans : transactions)
+        {
+            if(trans.GetTransactionID() == id)
+            {
+                return &trans;
+            }
+        }
+        return nullptr;
+    }
+    Transaction* SearchTransactionByDate(Date date)
+    {
+        for(auto& trans : transactions)
+        {
+            if(trans.GetTransactionDate().Compare(date))
+            {
+                return &trans;
+            }
+        }
+        return nullptr;
+    }
+    bool DeleteTransaction(int id)
+    {
+        for(auto it = transactions.begin(); it != transactions.end(); ++it)
+        {
+            if(it->GetTransactionID() == id)
+            {
+                transactions.erase(it);
+                return true;
+            }
+        }
+        return false;
+    }
+    void WriteDataToFile(const char* filePath)
+    {
+        ofstream fileWriter;
+        fileWriter.open(filePath);
+
+        if(!fileWriter)
+        {
+            cout<<"Error opening file!"<<endl;
+            return;
+        }
+        for(const auto& tran : transactions)
+        {
+            fileWriter<<tran.GetTransactionID()<<","
+                      <<tran.GetTransactionDate()<<","
+                      <<tran.GetTransactionType()<<","
+                      <<tran.GetTransactionAmount()<<","
+                      <<tran.GetSenderAccount()<<","
+                      <<tran.GetReceiverAccount()<<","
+                      <<tran.GetTransactionStatus()<<"\n";
+        }
+        fileWriter.close();
+    }
+    void ReadDataFromFile(const char* filePath)
+    {
+        ifstream fileReader;
+        fileReader.open(filePath);
+
+        if(!fileReader)
+        {
+            cout<<"Error opening file!"<<endl;
+            return;
+        }
+        string line;
+        while(getline(fileReader, line))
+        {
+            if(!line.empty())
+            {
+                Transaction t;
+                t.ReadString(line);
+                transactions.push_back(t);
+            }
+        }
+        fileReader.close();
+    }
+};
+
+class ChequeBook
+{
+private:
+    int chequeBookID;
+    string ChequeIssuedFrom;
+    string ChequeIssuedTo;
+    string AccountNumber;
+    string TotalTransactionAmount;
+    Date issueDate;
+    Date expiryDate;
+public:   
+    ChequeBook()
+    {
+        chequeBookID = 0;
+        ChequeIssuedFrom = "";
+        ChequeIssuedTo = "";
+        AccountNumber = "";
+        TotalTransactionAmount = "";
+        issueDate = Date();
+        expiryDate = Date();
+    }
+    ChequeBook(int id, const Date& issue, const Date& expiry,string from, string to, string amount,string AccNum)
+    {
+        chequeBookID = id;
+        issueDate = issue;
+        expiryDate = expiry;
+        AccountNumber = AccNum;
+        ChequeIssuedFrom = from;
+        ChequeIssuedTo = to;
+        TotalTransactionAmount = amount;
+    }
+    ChequeBook(const ChequeBook& temp)
+    {
+        chequeBookID = temp.chequeBookID;
+        ChequeIssuedFrom = temp.ChequeIssuedFrom;
+        ChequeIssuedTo = temp.ChequeIssuedTo;
+        AccountNumber = temp.AccountNumber;
+        TotalTransactionAmount = temp.TotalTransactionAmount;
+        issueDate = temp.issueDate;
+        expiryDate = temp.expiryDate;
+    }
+    void SetChequeBook(int id, const Date& issue, const Date& expiry,string from, string to, string amount, string AccNum)
+    {
+        chequeBookID = id;
+        issueDate = issue;
+        expiryDate = expiry;
+        AccountNumber = AccNum;
+        ChequeIssuedFrom = from;
+        ChequeIssuedTo = to;
+        TotalTransactionAmount = amount;
+    }
+    int GetChequeBookID() const
+    {
+        return chequeBookID;
+    }
+    Date GetIssueDate() const
+    {
+        return issueDate;
+    }
+    Date GetExpiryDate() const
+    {
+        return expiryDate;
+    }
+    string GetChequeIssuedFrom() const
+    {
+        return ChequeIssuedFrom;
+    }
+    string GetChequeIssuedTo() const
+    {
+        return ChequeIssuedTo;
+    }
+    string GetTotalTransactionAmount() const
+    {
+        return TotalTransactionAmount;
+    }
+    string GetAccountNumber() const
+    {
+        return AccountNumber;
+    }
+    void GetChequeBook(){
+        cout<<"Enter checkbook ID : ";
+        cin>>chequeBookID;
+        cin.ignore();
+        cout<<"Enter associated account number : ";
+        getline(cin,AccountNumber);
+        cout<<"Enter issue date : ";
+        issueDate.AddDate();
+        cout<<"Enter expiry date : ";
+        expiryDate.AddDate();
+        cout<<"Enter cheque issued from : ";
+        getline(cin,ChequeIssuedFrom);
+        cout<<"Enter cheque issued to : ";
+        getline(cin,ChequeIssuedTo);
+        cout<<"Enter total transaction amount : ";
+        getline(cin,TotalTransactionAmount);
+        cout<<"ChequeBook added successfully!"<<endl;
+    }
+    void Display() const
+    {
+        cout<<"---------------ChequeBook Details----------------"<<endl;
+        cout<<"ChequeBook ID : "<<GetChequeBookID()<<endl;
+        cout<<"Associated Account Number : "<<GetAccountNumber()<<endl;
+        cout<<"Issue Date : "<<GetIssueDate().DisplayDateInString()<<endl;
+        cout<<"Expiry Date : "<<GetExpiryDate().DisplayDateInString()<<endl;
+        cout<<"Cheque Issued From : "<<GetChequeIssuedFrom()<<endl;
+        cout<<"Cheque Issued To : "<<GetChequeIssuedTo()<<endl;
+        cout<<"Total Transaction Amount : "<<GetTotalTransactionAmount()<<endl;
+        cout<<"------------------------------------------------"<<endl;
+    }
+    void ReadString(string line){
+        size_t pos = 0;
+        string token;
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        chequeBookID = stoi(token);
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        AccountNumber = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        issueDate.SetDate(stoi(token),stoi(line.substr(pos+1)),stoi(line.substr(pos+3)));
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        expiryDate.SetDate(stoi(token),stoi(line.substr(pos+1)),stoi(line.substr(pos+3)));
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        ChequeIssuedFrom = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        ChequeIssuedTo = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        TotalTransactionAmount = token;
+        line.erase(0, pos + 1);
+    }
+    ~ChequeBook() 
+    {
+    }
+};
+
+class ChequeBookCollection{
+private:
+    vector<ChequeBook> chequeBooks;
+public:
+    void AddChequeBook(ChequeBook cb)
+    {
+        chequeBooks.push_back(cb);
+    }
+    void DisplayChequeBooks()
+    {
+        for(const auto& cb : chequeBooks)
+        {
+            cb.Display();
+        }
+    }
+    ChequeBook* SearchChequeBookByID(int id)
+    {
+        for(auto& cb : chequeBooks)
+        {
+            if(cb.GetChequeBookID() == id)
+            {
+                return &cb;
+            }
+        }
+        return nullptr;
+    }
+    ChequeBook* SearchChequeBookByIssueDate(Date date)
+    {
+        for(auto& cb : chequeBooks)
+        {
+            if(cb.GetIssueDate().Compare(date))
+            {
+                return &cb;
+            }
+        }
+        return nullptr;
+    }
+    bool DeleteChequeBook(int id)
+    {
+        for(auto it = chequeBooks.begin(); it != chequeBooks.end(); ++it)
+        {
+            if(it->GetChequeBookID() == id)
+            {
+                chequeBooks.erase(it);
+                return true;
+            }
+        }
+        return false;
+    }
+    void WriteDataToFile(const char* filePath)
+    {
+        ofstream fileWriter;
+        fileWriter.open(filePath);
+
+        if(!fileWriter)
+        {
+            cout<<"Error opening file!"<<endl;
+            return;
+        }
+        for(const auto& ch : chequeBooks)
+        {
+            fileWriter<<ch.GetChequeBookID()<<","
+                      <<ch.GetAccountNumber()<<","
+                      <<ch.GetIssueDate()<<","
+                      <<ch.GetExpiryDate()<<","
+                      <<ch.GetChequeIssuedFrom()<<","
+                      <<ch.GetChequeIssuedTo()<<","
+                      <<ch.GetTotalTransactionAmount()<<"\n";
+        }
+        fileWriter.close();
+    }
+    void ReadDataFromFile(const char* filePath)
+    {
+        ifstream fileReader;
+        fileReader.open(filePath);
+
+        if(!fileReader)
+        {
+            cout<<"Error opening file!"<<endl;
+            return;
+        }
+        string line;
+        while(getline(fileReader, line))
+        {
+            if(!line.empty())
+            {
+                ChequeBook cb;
+                cb.ReadString(line);
+                chequeBooks.push_back(cb);
+            }
+        }
+        fileReader.close();
+    }
+};
+
+class BankCard{
+private:
+    string cardNumber,cardType,cardHolderName,cardStatus,currencyType,pin;
+    Date expiryDate;
+    double availableBalance;
+
+public:
+    BankCard()
+    {
+        cardNumber = "";
+        cardType = "";
+        cardHolderName = "";
+        expiryDate = Date();
+        pin = "";
+        availableBalance = 0.0;
+        currencyType = "";
+        cardStatus = "";
+    }
+    BankCard(string cardNum, string type, string holder, const Date& date, string pincode,double balance, string currency, string status)
+    {
+        cardNumber = cardNum;
+        cardType = type;
+        cardHolderName = holder;
+        expiryDate = date;
+        pin = pincode;
+        availableBalance = balance;
+        currencyType = currency;
+        cardStatus = status;
+    }
+    BankCard(const BankCard& temp)
+    {
+        cardNumber = temp.cardNumber;
+        cardType = temp.cardType;
+        cardHolderName = temp.cardHolderName;
+        expiryDate = temp.expiryDate;
+        pin = temp.pin;
+        availableBalance = temp.availableBalance;
+        currencyType = temp.currencyType;
+        cardStatus = temp.cardStatus;
+    }
+    void SetBankCard(string cardNum, string type, string holder, const Date& date, string pincode,double balance, string currency, string status)
+    {
+        cardNumber = cardNum;
+        cardType = type;
+        cardHolderName = holder;
+        expiryDate = date;
+        pin = pincode;
+        availableBalance = balance;
+        currencyType = currency;
+        cardStatus = status;
+    }
+    string GetCardNumber() const
+    {
+        return cardNumber;
+    }
+    string GetCardType() const
+    {
+        return cardType;
+    }
+    string GetCardHolderName() const
+    {
+        return cardHolderName;
+    }
+    Date GetExpiryDate() const
+    {
+        return expiryDate;
+    }
+    string GetPin() const
+    {
+        return pin;
+    }
+    double GetAvailableBalance() const
+    {
+        return availableBalance;
+    }
+    string GetCurrencyType() const
+    {
+        return currencyType;
+    }
+    string GetCardStatus() const
+    {
+        return cardStatus;
+    }
+    void GetBankCard(){
+        cout<<"Enter card number : ";
+        cin>>cardNumber;
+        cin.ignore();
+        cout<<"Enter card type : ";
+        getline(cin,cardType);
+        cout<<"Enter card holder name : ";
+        getline(cin,cardHolderName);
+        cout<<"Enter expiry date : ";
+        expiryDate.AddDate();
+        cout<<"Enter pin : ";
+        getline(cin,pin);
+        cout<<"Enter available balance : ";
+        cin>>availableBalance;
+        cin.ignore();
+        cout<<"Enter currency type : ";
+        getline(cin,currencyType);
+        cout<<"Enter card status : ";
+        cout<<"Bank card added successfully!"<<endl;
+    }
+    void Display() const
+    {
+        cout<<"---------------Bank Card Details----------------"<<endl;
+        cout<<"Card Number : "<<GetCardNumber()<<endl;
+        cout<<"Card Type : "<<GetCardType()<<endl;
+        cout<<"Card Holder Name : "<<GetCardHolderName()<<endl;
+        cout<<"Expiry Date : ";
+        GetExpiryDate().DisplayDateInString();
+        cout<<endl;
+        cout<<"Pin : "<<GetPin()<<endl;
+        cout<<"Available Balance : "<<GetAvailableBalance()<<endl;
+        cout<<"Currency Type : "<<GetCurrencyType()<<endl;
+        cout<<"Card Status : "<<GetCardStatus()<<endl;
+        cout<<"------------------------------------------------"<<endl;
+    }
+    void ReadString(string line){
+        size_t pos = 0;
+        string token;
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        cardNumber = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        cardHolderName = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        cardStatus = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        cardType = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        currencyType = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        availableBalance = stoi(token);
+        line.erase(0, pos + 1);
+       
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        pin = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        expiryDate.SetDate(stoi(token),stoi(line.substr(pos+1)),stoi(line.substr(pos+3)));
+        line.erase(0, pos + 1);
+    }
+    ~BankCard()
+    {
+    }
+};
+
+class BankCardCollection{
+private:
+    vector<BankCard> bankcards;
+public:
+    void AddBankCard(BankCard bc)
+    {
+        bankcards.push_back(bc);
+    }
+    void DisplayBankCards()
+    {
+        for(const auto& bc : bankcards)
+        {
+            bc.Display();
+        }
+    }
+    BankCard* SearchBankCardByNumber(string cardNum)
+    {
+        for(auto& bc : bankcards)
+        {
+            if(bc.GetCardNumber() == cardNum)
+            {
+                return &bc;
+            }
+        }
+        return nullptr;
+    }   
+    BankCard* SearchBankCardByHolderName(string holderName)
+    {
+        for(auto& bc : bankcards)
+        {
+            if(bc.GetCardHolderName() == holderName)
+            {
+                return &bc;
+            }
+        }
+        return nullptr;
+    }
+    bool DeleteBankCard(string cardNum)
+    {
+        for(auto it = bankcards.begin(); it != bankcards.end(); ++it)
+        {
+            if(it->GetCardNumber() == cardNum)
+            {
+                bankcards.erase(it);
+                return true;
+            }
+        }
+        return false;
+    }
+    void WriteDataToFile(const char* filePath)
+    {
+        ofstream fileWriter;
+        fileWriter.open(filePath);
+
+        if(!fileWriter)
+        {
+            cout<<"Error opening file!"<<endl;
+            return;
+        }
+        for(const auto& b : bankcards)
+        {
+            fileWriter<<b.GetCardNumber()<<","
+                      <<b.GetCardHolderName()<<","
+                      <<b.GetCardStatus()<<","
+                      <<b.GetCardType()<<","
+                      <<b.GetCurrencyType()<<","
+                      <<b.GetAvailableBalance()<<","
+                      <<b.GetPin()<<","
+                      <<b.GetExpiryDate()<<"\n";
+        }
+        fileWriter.close();
+    }
+    void ReadDataFromFile(const char* filePath)
+    {
+        ifstream fileReader;
+        fileReader.open(filePath);
+
+        if(!fileReader)
+        {
+            cout<<"Error opening file!"<<endl;
+            return;
+        }
+        string line;
+        while(getline(fileReader, line))
+        {
+            if(!line.empty())
+            {
+                BankCard bc;
+                bc.ReadString(line);
+                bankcards.push_back(bc);
+            }
+        }
+        fileReader.close();
+    }
+};
+
+class Services
+{
+private:
+    int serviceID;
+    double transactionAmount;
+    string serviceType;
+    
+public:
+
+    Services() 
+    {
+        serviceID = 0;
+        transactionAmount = 0.0;
+        serviceType = "";
+    }
+    Services(int ID, double amm, string type)
+    {
+        serviceID = ID;
+        serviceType = type;
+        transactionAmount = amm;
+    }
+    Services(const Services& temp)
+    {
+        serviceID = temp.serviceID;
+        serviceType = temp.serviceType;
+        transactionAmount = temp.transactionAmount;
+    }
+    void SetServices(int ID, double amm, string type)
+    {
+        serviceID = ID;
+        serviceType = type;
+        transactionAmount = amm;
+    }
+    int GetServiceID() const
+    { 
+        return serviceID; 
+    }
+    string GetServiceType() const
+    {
+        return serviceType;
+    }
+    double GetTransactionAmount() const
+    {
+        return transactionAmount;
+    }
+    void GetService()
+    {
+        cout<<"Enter service ID : ";
+        cin>>serviceID;
+        cin.ignore();
+        cout<<"Enter service type : ";
+        getline(cin,serviceType);
+        cout<<"Enter Transaction amount : ";
+        cin>>transactionAmount;
+        cout<<"Services added successfully!"<<endl;
+    }
+    void Display() const
+    {
+            cout<<"----------Services Detail----------"<<endl;
+            cout<<"Service ID : "<<GetServiceID()<<endl;
+            cout<<"Service type : "<<GetServiceType()<<endl;
+            cout<<"Transaction amount : "<<GetTransactionAmount()<<endl;
+            cout<<"-----------------------------------"<<endl;
+    }
+    void ReadString(string line){
+        size_t pos = 0;
+        string token;
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        serviceID = stoi(token);
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        serviceType = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        transactionAmount = stoi(token);
+        line.erase(0, pos + 1);
+    }
+    ~Services() 
+    {
+    }
+};
+
+class ServiceCollection{
+private:
+    vector<Services> services;
+public:
+    void AddServices(Services s)
+    {
+        services.push_back(s);
+    }
+    void DisplayServices()
+    {
+        for(const auto& s : services)
+        {
+            s.Display();
+        }
+    }
+    Services* SearchServiceByID(int id)
+    {
+        for(auto& s : services)
+        {
+            if(s.GetServiceID() == id)
+            {
+                return &s;
+            }
+        }
+        return nullptr;
+    }
+    Services* SearchServiceByType(string type)
+    {
+        for(auto& s : services)
+        {
+            if(s.GetServiceType() == type)
+            {
+                return &s;
+            }
+        }
+        return nullptr;
+    }
+    bool DeleteService(int id)
+    {
+        for(auto it = services.begin(); it != services.end(); ++it)
+        {
+            if(it->GetServiceID() == id)
+            {
+                services.erase(it);
+                return true;
+            }
+        }
+        return false;
+    }
+    void WriteDataToFile(const char* filePath)
+    {
+        ofstream fileWriter;
+        fileWriter.open(filePath);
+
+        if(!fileWriter)
+        {
+            cout<<"Error opening file!"<<endl;
+            return;
+        }
+        for(const auto& s : services)
+        {
+            fileWriter<<s.GetServiceID()<<","
+                      <<s.GetServiceType()<<","
+                      <<s.GetTransactionAmount()<<"\n";
+        }
+        fileWriter.close();
+    }
+    void ReadDataFromFile(const char* filePath)
+    {
+        ifstream fileReader;
+        fileReader.open(filePath);
+
+        if(!fileReader)
+        {
+            cout<<"Error opening file!"<<endl;
+            return;
+        }
+        string line;
+        while(getline(fileReader, line))
+        {
+            if(!line.empty())
+            {
+                Services s;
+                s.ReadString(line);
+                services.push_back(s);
+            }
+        }
+        fileReader.close();
+    }
+};
+
+class Account
+{
+private:
+    string accountNumber,accountHolderName;
+    double availableBalance;      
+    string accountType,status;    
+    
+public:
+    Transaction* transactions;
+    BankCard* bankCard;
+    ChequeBook chequeBook;
+    Account()
+    {
+        accountHolderName = "";
+        accountNumber = "";
+        availableBalance = 0.0;
+        accountType = "";
+        status = "";
+        transactions = nullptr;
+        bankCard = nullptr;
+        chequeBook = ChequeBook();    
+    }
+    Account(string accName,string accNum, double balance, string type, string stat,Transaction* trans,BankCard* bc,const ChequeBook& cb)
+    {
+        accountHolderName = accName;
+        accountNumber = accNum;
+        availableBalance = balance;
+        accountType = type;
+        status = stat;
+        transactions = trans;
+        bankCard = bc;
+        chequeBook = cb;
+    }
+    Account(const Account& temp)
+    {
+        accountHolderName = temp.accountHolderName;
+        accountNumber = temp.accountNumber;
+        availableBalance = temp.availableBalance;
+        accountType = temp.accountType;
+        status = temp.status;
+        transactions = temp.transactions;
+        bankCard = temp.bankCard;
+        chequeBook = temp.chequeBook;
+    }
+    void SetAccount(string accName,string accNum, double balance,string Type,string stat)
+    {
+        accountHolderName = accName;
+        accountNumber = accNum;
+        availableBalance = balance;
+        accountType = Type;
+        status = stat;
+    }
+    string GetAccountHolderName() const
+    {
+        return accountHolderName;
+    }
+    string GetAccountNumber() const
+    {
+        return accountNumber; 
+    }
+    double GetBalance() const
+    { 
+        return availableBalance; 
+    }
+    string GetAccountType() const
+    {
+        return accountType;
+    }
+    string GetStatus() const
+    {
+        return status;
+    }
+    void GetAccount()
+    {
+        cout<<"Enter account holder name : ";
+        cin.ignore();
+        getline(cin,accountHolderName);
+        cout<<"Enter the account number : ";
+        getline(cin,accountNumber);
+        cout<<"Enter the available balance : ";
+        cin>>availableBalance;
+        cin.ignore();
+        cout<<"Enter the type of account : ";
+        getline(cin,accountType);
+        cout<<"Enter the account status : ";
+        getline(cin,status);
+        cout<<"Account added successfully!"<<endl;
+    }
+    void Display() const
+    {
+        cout<<"---------------Account Details----------------"<<endl;
+        cout<<"Account Holder name : "<<GetAccountHolderName()<<endl;
+        cout<<"Account number : "<<GetAccountNumber()<<endl;
+        cout<<"Available balance in account : "<<GetBalance()<<endl;
+        cout<<"Account Type : "<<GetAccountType()<<endl;
+        cout<<"Account Status : "<<GetStatus()<<endl;
+        if(transactions != nullptr) 
+        {
+            cout<<"Linked Transaction Details : "<<endl;
+            transactions->Display();
+        } 
+        else 
+        {
+            cout<<"No linked transaction."<<endl;
+        }
+        if(bankCard != nullptr) 
+        {
+            cout<<"Linked BankCard Details : "<<endl;
+            bankCard->Display();
+        } 
+        else 
+        {
+            cout<<"No linked bank card."<<endl;
+        }
+        cout<<"Linked ChequeBook Details : "<<endl;
+        chequeBook.Display();
+        cout<<"-----------------------------------------------"<<endl;
+    }
+    void ReadString(string line){
+        size_t pos = 0;
+        string token;
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        accountHolderName = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        accountNumber = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        availableBalance = stoi(token);
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        accountType = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        status = token;
+        line.erase(0, pos + 1);
+    }
+    ~Account()
+    {
+    }
+};
+
+class AccountCollection{
+private:
+    vector<Account> accounts;
+public:
+    void AddAccount(Account acc)
+    {
+        accounts.push_back(acc);
+    }
+    void DisplayAccounts()
+    {
+        for(const auto& acc : accounts)
+        {
+            acc.Display();
+        }
+    }
+    Account* SearchAccountByAccountNumber(string accnum)
+    {
+        for(auto& acc : accounts)
+        {
+            if(acc.GetAccountNumber() == accnum)
+            {
+                return &acc;
+            }
+        }
+        return nullptr;
+    }
+    Account* SearchAccountByHolderName(string name)
+    {
+        for(auto& acc : accounts)
+        {
+            if(acc.GetAccountHolderName() == name)
+            {
+                return &acc;
+            }
+        }
+        return nullptr;
+    }
+    bool DeleteAccount(string accNum)
+    {
+        for(auto it = accounts.begin(); it != accounts.end(); ++it)
+        {
+            if(it->GetAccountNumber() == accNum)
+            {
+                accounts.erase(it);
+                return true;
+            }
+        }
+        return false;
+    }
+    void WriteDataToFile(const char* filePath)
+    {
+        ofstream fileWriter;
+        fileWriter.open(filePath);
+
+        if(!fileWriter)
+        {
+            cout<<"Error opening file!"<<endl;
+            return;
+        }
+        for(const auto& a : accounts)
+        {
+            fileWriter<<a.GetAccountHolderName()<<","
+                      <<a.GetAccountNumber()<<","
+                      <<a.GetBalance()<<","
+                      <<a.GetAccountType()<<","
+                      <<a.GetStatus()<<"\n";
+        }
+        fileWriter.close();
+    }
+    void ReadDataFromFile(const char* filePath)
+    {
+        ifstream fileReader;
+        fileReader.open(filePath);
+
+        if(!fileReader)
+        {
+            cout<<"Error opening file!"<<endl;
+            return;
+        }
+        string line;
+        while(getline(fileReader, line))
+        {
+            if(!line.empty())
+            {
+                Account a;
+                a.ReadString(line);
+                accounts.push_back(a);
+            }
+        }
+        fileReader.close();
+    }
+};
+
+class AccountHolder : public Person
+{
+private:
+    int HolderID;
+       
+public:
+    Account* accounts;
+    Services* services; 
+    AccountHolder()
+    {
+        HolderID = 0;
+        accounts = nullptr;
+        services = nullptr;
+    }
+    AccountHolder(string u, string p) : Person(u,p) {}
+    AccountHolder(int ID, string contact, string email, string address, string name,GENDER gender,Account* acc, Services* serv,string user,string pass)
+        : Person(name,contact,gender,email,address,user,pass)
+    {
+        HolderID = ID;
+        accounts = acc;
+        services = serv;
+    }
+    AccountHolder(const AccountHolder& temp) : Person(temp)
+    {
+        HolderID = temp.HolderID;
+        accounts = temp.accounts;
+        services = temp.services;
+    }
+    void SetHolder(int ID)
+    {
+        HolderID = ID;
+    }
+    int GetHolderID() const
+    { 
+        return HolderID;
+    }
+    void GetAccountHolder() 
+    {
+        cout<<"Enter account holder ID : ";
+        cin>>HolderID;
+        cin.ignore();
+        cout<<"Enter account holder name : ";
+        getline(cin,Name);
+        SetGender();
+        cin.ignore();
+        cout<<"Enter username : ";
+        string username;
+        getline(cin,username);
+        cout<<"Enter password : ";
+        string password;
+        getline(cin,password);
+        string contact;
+        cout<<"Enter account holder contact : ";
+        getline(cin,contact);
+        cout<<"Enter account holder address : ";
+        string address;
+        getline(cin,address);
+        cout<<"Enter account holder email : ";
+        string email;
+        getline(cin,email);
+        SetPerson(contact,email,address,username,password);
+        cout<<"Account holder added successfully!"<<endl;
+    }
+    void Display() const
+    {
+        cout<<"------------Account Holder Details-------------"<<endl;
+        cout<<"Account Holder Username : "<<GetUsername()<<endl;
+        cout<<"Account Holder Password : "<<GetPassword()<<endl;
+        cout<<"Account Holder ID : "<<GetHolderID()<<endl;
+        cout<<"Account Holder name : "<<Name<<endl;
+        cout<<"Account Holder Gender : ";
+        if(Gender== Male)
+        {
+            cout<<"Male"<<endl;
+        }
+        else
+        {
+            cout<<"Female"<<endl;
+        }
+        cout<<"Account Holder contact : "<<GetContact()<<endl;
+        cout<<"Account Holder email : "<<GetEmail()<<endl;
+        cout<<"Account Holder address : "<<GetAddress()<<endl;
+        if(accounts != nullptr) 
+        {
+            cout<<"Linked Account Details : "<<endl;
+            accounts->Display();
+        } 
+        else 
+        {
+            cout<<"No linked account."<<endl;
+        }
+        if(services != nullptr) 
+        {
+            cout<<"Linked Services Details : "<<endl;
+            services->Display();
+        } 
+        else 
+        {
+            cout<<"No linked services."<<endl;
+        }
+        cout<<"------------------------------------------------"<<endl;
+    }
+    void ReadString(string line){
+        size_t pos = 0;
+        string token;
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        HolderID = stoi(token);
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        GetUsername() = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        GetPassword() = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        Name = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        Gender = stoi(token);
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        GetContact() = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        GetEmail() = token;
+        line.erase(0, pos + 1);
+
+        pos = line.find(",");
+        token = line.substr(0, pos);
+        GetAddress() = token;
+        line.erase(0, pos + 1);
+    }
+    ~AccountHolder()
+    {
+    }
+};
+
+class AccountHolderCollection : public PersonCollection
+{
+private:
+    vector<AccountHolder> accountHolders;
+public:
+    void AddAccountHolder(AccountHolder ah)
+    {
+        accountHolders.push_back(ah);
+    }
+    void AddAccountHolder(string username, string password) {
+        AccountHolder ah(username, password);
+        accountHolders.push_back(ah);
+    }
+    void DisplayAccountHolders()
+    {
+        for(const auto& ah : accountHolders)
+        {
+            ah.Display();
+        }
+    }
+    AccountHolder* SearchAccountHolderByID(int id)
+    {
+        for(auto& ah : accountHolders)
+        {
+            if(ah.GetHolderID() == id)
+            {
+                return &ah;
+            }
+        }
+        return nullptr;
+    }
+    AccountHolder* SearchAccountHolderByName(string name)
+    {
+        for(auto& ah : accountHolders)
+        {
+            if(ah.Name == name)
+            {
+                return &ah;
+            }
+        }
+        return nullptr;
+    }
+    Person* SearchAccountHolderByUsername(const string& username, const string& password) 
+    {
+        for (auto& ah : accountHolders) 
+        {
+            if (ah.GetUsername() == username && ah.GetPassword() == password) 
+            {
+                return &ah;
+            }
+        }
+        return nullptr;
+    }
+    bool DeleteAccountHolder(int id)
+    {
+        for(auto it = accountHolders.begin(); it != accountHolders.end(); ++it)
+        {
+            if(it->GetHolderID() == id)
+            {
+                accountHolders.erase(it);
+                return true;
+            }
+        }
+        return false;
+    }
+    void WriteDataToFile(const char* filePath)
+    {
+        ofstream fileWriter;
+        fileWriter.open(filePath);
+
+        if(!fileWriter)
+        {
+            cout<<"Error opening file!"<<endl;
+            return;
+        }
+        for(const auto& ah : accountHolders)
+        {
+            fileWriter<<ah.GetHolderID()<<","
+                      <<ah.GetUsername()<<","
+                      <<ah.GetPassword()<<","
+                      <<ah.Name<<","
+                      <<ah.Gender<<","
+                      <<ah.GetContact()<<","
+                      <<ah.GetEmail()<<","
+                      <<ah.GetAddress()<<"\n";
+        }
+        fileWriter.close();
+    }
+    void ReadDataFromFile(const char* filePath)
+    {
+        ifstream fileReader;
+        fileReader.open(filePath);
+
+        if(!fileReader)
+        {
+            cout<<"Error opening file!"<<endl;
+            return;
+        }
+        string line;
+        while(getline(fileReader, line))
+        {
+            if(!line.empty())
+            {
+                AccountHolder ah;
+                ah.ReadString(line);
+                accountHolders.push_back(ah);
+            }
+        }
+        fileReader.close();
+    }
+};
+
+AdminCollection adcollection;
+EmployeeCollection ecollection;
+AccountHolderCollection hcollection;
+AccountCollection acollection;
+ChequeBookCollection cbcollection;
+TransactionCollection tcollection;
+ServiceCollection scollection;
+BankCardCollection bcollection;
+int id;
+string name;
+
+void EmployeeMenu(){
+    char subChoice;
+    do{
+    SetColour(GREEN);
+    cout<<"\n--------------------------------------"<<endl;
+    cout<<"          Employee Management         "<<endl;
+    cout<<"--------------------------------------\n"<<endl;
+    ResetColour();
+    cout<<"a. Add Employee"<<endl;
+    cout<<"b. Display Employees"<<endl;
+    cout<<"c. Search Employee"<<endl;
+    cout<<"d. Update Employee"<<endl;
+    cout<<"e. Delete Employee"<<endl;
+    cout<<"f. Exit"<<endl;
+    cout<<"\nEnter sub-choice [a-f] : ";
+    cin>> subChoice;
+    switch(subChoice){
+        case 'a':
+        {
+            cout<<"-------Adding Employee-------"<<endl;
+            Employee emp;
+            emp.GetEmployee();
+            ecollection.AddEmployees(emp);
+            break;
+        }
+        case 'b':
+        {
+            cout<<"-------Displaying Employees-------"<<endl;
+            ecollection.DisplayEmployees();
+            break;
+        }
+        case 'c':
+        {
+            cout<<"-------Searching Employee-------"<<endl;
+            cout<<"Search by ID or Name (1 for ID, 2 for Name): ";
+            int choice;
+            cin>>choice;
+            switch(choice){
+                case 1: 
+                {
+                cout<<"Enter employee ID to search : ";
+                cin>>id;
+                Employee* emp = ecollection.SearchEmployeeByID(id);
+                if(emp != nullptr)
+                {
+                    emp->Display();
+                }
+                else
+                {
+                    cout<<"Employee not found!"<<endl;
+                }
+                break;
+                }
+                case 2: 
+                {
+                cout<<"Enter employee name to search : ";
+                cin.ignore();
+                getline(cin,name);
+                Employee* emp = ecollection.SearchEmployeeByName(name);
+                if(emp != nullptr)
+                {
+                    emp->Display();
+                }
+                else
+                {
+                    cout<<"Employee not found!"<<endl;
+                }
+                break;
+                }
+                default:
+                SetColour(RED);
+                    cout<<"Invalid choice!"<<endl;
+                ResetColour();
+                break;
+            } 
+            break;
+        }
+        case 'd':
+        {
+            cout<<"-------Updating Employee-------"<<endl;
+            cout<<"Enter employee ID to update : ";
+            cin>>id;
+            Employee* emp = ecollection.SearchEmployeeByID(id);
+            if(emp != nullptr)
+            {
+                emp->GetEmployee();
+                cout<<"Employee updated successfully!"<<endl;
+            }
+            else
+            {
+                cout<<"Employee not found!"<<endl;
+            }
+            break;
+        }
+        case 'e':
+        {
+            cout<<"-------Deleting Employee-------"<<endl;
+            cout<<"Enter employee ID to delete : ";
+            cin>>id;
+            if(ecollection.DeleteEmployee(id))
+            {
+                cout<<"Employee deleted successfully!"<<endl;
+            }
+            else
+            {
+                cout<<"Employee not found!"<<endl;
+            }
+            break;
+        }
+        case 'f':
+        {
+        cout<<"Exiting Employee Menu" << endl;
+        break;
+        }
+        default:
+        SetColour(RED);
+            cout<<"Invalid sub-choice"<<endl;
+        ResetColour();
+        break;
+        }
+    }while(subChoice != 'f');
+}
+
+void AccountHolderMenu(){
+    char subChoice;
+    do{
+    SetColour(GREEN);
+    cout<<"\n--------------------------------------"<<endl;
+    cout<<"       Account Holder Management        "<<endl;
+    cout<<"--------------------------------------\n"<<endl;
+    ResetColour();
+    cout<<"a. Add Holder"<<endl;
+    cout<<"b. Display Holder"<<endl;
+    cout<<"c. Search Holder"<<endl;
+    cout<<"d. Update Holder"<<endl;
+    cout<<"e. Delete Holder"<<endl;
+    cout<<"f. Exit "<<endl;
+    cout<<"\nEnter sub-choice [a-f] : ";
+    cin>> subChoice;
+    switch(subChoice){
+        case 'a':
+        {
+            cout<<"-------Adding Account Holder-------"<<endl;
+            AccountHolder h;
+            h.GetAccountHolder();
+
+            cout<<"Enter the account number : ";
+            string accNum;
+            cin.ignore();
+            getline(cin,accNum);
+                Account* a = acollection.SearchAccountByAccountNumber(accNum);
+                if(a != nullptr)
+                {
+                    h.accounts = a;
+                    cout<<"Account linked successfully! "<<endl;
+                }
+                else 
+                {
+                    cout<<"Account not found!"<<endl;
+                }
+
+            cout<<"Enter service id (or -1 to skip): ";
+            cin>> id;
+            if(id != -1)
+            {
+                Services* s = scollection.SearchServiceByID(id);
+                if(s != nullptr)
+                {
+                    h.services = s;
+                    cout<<"Service linked successfully! "<<endl;
+                }
+                else
+                {
+                    cout<<"Service not found! Skipping Service linking"<<endl;
+                }
+            }
+            hcollection.AddAccountHolder(h);
+            cout<<"Account Holder added successfully!"<<endl;
+            break;
+        }
+        case 'b':
+        {
+            cout<<"-------Displaying Account Holder-------"<<endl;
+            hcollection.DisplayAccountHolders();
+            break;
+        }
+        case 'c':
+        {
+            cout<<"-------Searching Account Holder-------"<<endl;
+            cout<<"Search by ID or Name (1 for ID, 2 for Name): ";
+            int choice;
+            cin>>choice;
+            switch(choice){
+                case 1: 
+                {
+                cout<<"Enter account holder ID to search : ";
+                cin>>id;
+                AccountHolder* h = hcollection.SearchAccountHolderByID(id);
+                if(h != nullptr)
+                {
+                    h->Display();
+                }
+                else
+                {
+                    cout<<"Account Holder not found!"<<endl;
+                }
+                break;
+                }
+                case 2: 
+                {
+                    cout<<"Enter account holder name to search : ";
+                    cin.ignore();
+                    getline(cin,name);
+                    AccountHolder* h = hcollection.SearchAccountHolderByName(name);
+                    if(h != nullptr)
+                    {
+                        h->Display();
+                    }
+                    else
+                    {
+                        cout<<"Account Holder not found!"<<endl;
+                    }
+                    break;
+                }
+                default:
+                SetColour(RED);
+                    cout<<"Invalid choice!"<<endl;
+                ResetColour();
+                break;
+            }
+            break;
+        }
+        case 'd':
+        {
+            cout<<"-------Updating Account Holder-------"<<endl;
+            cout<<"Enter account holder ID to update : ";
+            cin>>id;
+            AccountHolder* h = hcollection.SearchAccountHolderByID(id);
+            if(h != nullptr)
+            {
+                h->GetAccountHolder();
+                cout<<"Account Holder updated successfully!"<<endl;
+            }
+            else
+            {
+                cout<<"Account Holder not found!"<<endl;
+            }
+            break;
+        }
+        case 'e':
+        {
+            cout<<"-------Deleting Account Holder-------"<<endl;
+            cout<<"Enter account holder ID to delete : ";
+            cin>>id;
+            if(hcollection.DeleteAccountHolder(id))
+            {
+                cout<<"Account Holder deleted successfully!"<<endl;
+            }
+            else
+            {
+                cout<<"Account Holder not found!"<<endl;
+            }
+            break;
+        }
+        case 'f':
+        {
+            cout<<"Exiting AccountHolder Menu" << endl;
+            break;
+        }
+        default:
+        SetColour(RED);
+            cout<<"Invalid sub-choice"<<endl;
+        ResetColour();
+        break;
+        }
+    }while(subChoice != 'f');
+}
+
+void AccountMenu(){
+    char subChoice;
+    do{
+    SetColour(GREEN);
+    cout<<"\n--------------------------------------"<<endl;
+    cout<<"          Account Management          "<<endl;
+    cout<<"--------------------------------------\n"<<endl;
+    ResetColour();
+    cout<<"a. Add account"<<endl;
+    cout<<"b. Display account"<<endl;
+    cout<<"c. Search account"<<endl;
+    cout<<"d. Update account"<<endl;
+    cout<<"e. Delete account"<<endl;
+    cout<<"f. Exit"<<endl;
+    cout<<"\nEnter sub-choice [a-f] : ";
+    cin>> subChoice;
+    switch(subChoice){
+        case 'a': 
+        {
+            cout<<"-------Adding Account-------"<<endl;
+            Account a;
+            a.GetAccount();
+            
+            cout << "Enter transaction id (or -1 to skip): ";
+            cin >> id;
+            if (id != -1) 
+            {
+                Transaction* t = tcollection.SearchTransactionByID(id);
+                if (t != nullptr) 
+                {
+                    a.transactions = t;
+                    cout << "Transaction linked successfully!" << endl;
+                } 
+                else 
+                {
+                    cout << "Transaction not found! Skipping transaction linking..." << endl;
+                }
+            }
+
+            cout << "Enter card number (or press Enter to skip) : ";
+            cin.ignore();
+            string cardNum;
+            getline(cin, cardNum);
+            if (!cardNum.empty()) 
+            {
+                BankCard* b = bcollection.SearchBankCardByNumber(cardNum);
+                if (b != nullptr) 
+                {
+                    a.bankCard = b;
+                    cout << "BankCard linked successfully!" << endl;
+                } 
+                else 
+                {
+                    cout << "BankCard not found! Skipping bank card linking..." << endl;
+                }
+            }
+
+            cout << "Enter cheque book details : ";
+            ChequeBook cb;
+            cb.GetChequeBook();
+            a.chequeBook = cb;
+            cout<<"ChequeBook Linked successfully! "<<endl;
+
+            acollection.AddAccount(a);
+            cout<<"Account added successfully!"<<endl;
+            break;
+            /*cout<<"Enter transaction id : ";
+            cin>> id;
+
+            Transaction* t = tcollection.SearchTransactionByID(id);
+            if(t != nullptr) 
+            {
+                a.transactions = t;
+
+                cout<<"Enter card number : ";
+                string cardNum;
+                cin.ignore();
+                getline(cin,cardNum);
+
+                BankCard* b = bcollection.SearchBankCardByNumber(cardNum);
+                if(b != nullptr)
+                {
+                    a.bankCard = b;
+
+                    cout<<"Enter cheque book Details : ";
+                    ChequeBook cb;
+                    cb.GetChequeBook();
+                    a.chequeBook = cb;
+                    
+                    acollection.AddAccount(a);
+                    cout<<"Account added successfully!"<<endl;
+                }
+                else
+                {
+                    cout<<"BankCard not found!"<<endl;
+                }
+            }   
+            else
+            {
+                cout<<"Transaction not found!"<<endl;
+            }
+            break;*/
+        }
+        case 'b':
+        {
+            cout<<"-------Displaying Account-------"<<endl;
+            acollection.DisplayAccounts();
+            break;
+        }
+        case 'c':
+        {
+            cout<<"-------Searching Account-------"<<endl;
+            cout<<"Search by Account number or Holder Name (1 for Account Number, 2 for Holder Name): ";
+            int choice;
+            cin>>choice;
+            switch(choice){
+                case 1: 
+                {
+                string accNum;
+                cout<<"Enter account number to search : ";
+                getline(cin,accNum);
+                Account* a = acollection.SearchAccountByAccountNumber(accNum);
+                if(a != nullptr)
+                {
+                    a->Display();
+                }
+                else
+                {
+                    cout<<"Account not found!"<<endl;
+                }
+                break;
+                }
+                case 2: 
+                {
+                    cout<<"Enter account holder name to search : ";
+                    cin.ignore();
+                    getline(cin,name);
+                    Account* a = acollection.SearchAccountByHolderName(name);
+                    if(a != nullptr)
+                    {
+                        a->Display();
+                    }
+                    else
+                    {
+                        cout<<"Account not found!"<<endl;
+                    }
+                    break;
+                }
+                default:
+                SetColour(RED);
+                    cout<<"Invalid choice!"<<endl;
+                ResetColour();
+                break;
+            }
+            break;
+        }
+        case 'd':
+        {
+            cout<<"-------Updating Account-------"<<endl;
+            cout<<"Enter account Number to update : ";
+            string accNum;
+            cin.ignore();
+            getline(cin,accNum);
+            Account* a = acollection.SearchAccountByAccountNumber(accNum);
+            if(a != nullptr)
+            {
+                a->GetAccount();
+
+                cout<<"-------Updating ChequeBook--------"<<endl;
+                a->chequeBook.GetChequeBook();
+
+                cout<<"Account updated successfully!"<<endl;
+            }
+            else
+            {
+                cout<<"Account not found!"<<endl;
+            }
+            break;
+        }
+        case 'e':
+        {
+            cout<<"-------Deleting Account-------"<<endl;
+            cout<<"Enter account number to delete : ";
+            string accNum;
+            cin.ignore();
+            getline(cin,accNum);
+            if(acollection.DeleteAccount(accNum))
+            {
+                cout<<"Account deleted successfully!"<<endl;
+            }
+            else
+            {
+                cout<<"Account not found!"<<endl;
+            }
+            break;
+        }
+        case 'f':
+            cout << "Exiting Account Menu" << endl;
+        break;
+        default:
+        SetColour(RED);
+            cout<<"Invalid sub-choice"<<endl;
+        ResetColour();
+        break;
+        }
+    }while(subChoice != 'f');
+}
+
+void ChequeBookMenu(){
+    char subChoice;
+    do{
+    SetColour(GREEN);
+    cout<<"\n--------------------------------------"<<endl;
+    cout<<"          ChequeBook Management          "<<endl;
+    cout<<"--------------------------------------\n"<<endl;
+    ResetColour();
+    cout<<"a. Add ChequeBook"<<endl;
+    cout<<"b. Display ChequeBook"<<endl;
+    cout<<"c. Search ChequeBook"<<endl;
+    cout<<"d. Update ChequeBook"<<endl;
+    cout<<"e. Delete ChequeBook"<<endl;
+    cout<<"f. Exit"<<endl;
+    cout<<"\nEnter sub-choice [a-f] : ";
+    cin>> subChoice;
+    cin.ignore();
+    switch(subChoice){
+        case 'a': 
+        {
+            cout<<"-------Adding ChequeBook-------";
+            ChequeBook cb;
+            cb.GetChequeBook();
+            cbcollection.AddChequeBook(cb);
+            break;
+        }  
+        case 'b':
+        {
+            cout<<"-------Dislaying ChequeBook-------";
+            cbcollection.DisplayChequeBooks();
+            break;
+        }
+        case 'c':
+        {
+            cout<<"-------Searching ChequeBook-------"<<endl;
+            cout<<"Search by ID or IssueDate (1 for ID, 2 for IssueDate): ";
+            int choice;
+            cin>>choice;
+            switch(choice){
+                case 1: 
+                {
+                cout<<"Enter chequebook ID to search : ";
+                cin>>id;
+                ChequeBook* cb = cbcollection.SearchChequeBookByID(id);
+                if(cb != nullptr)
+                {
+                    cb->Display();
+                }
+                else
+                {
+                    cout<<"ChequeBook not found!"<<endl;
+                }
+                break;
+                }
+                case 2: 
+                {
+                    cout<<"Enter chequebook issue date to search : ";
+                    Date date;
+                    date.AddDate();
+                    ChequeBook* cb = cbcollection.SearchChequeBookByIssueDate(date);
+                    if(cb != nullptr)
+                    {
+                        cb->Display();
+                    }
+                    else
+                    {
+                        cout<<"ChequeBook not found!"<<endl;
+                    }
+                    break;
+                }
+                default:
+                SetColour(RED);
+                    cout<<"Invalid choice!"<<endl;
+                ResetColour();
+                break;
+            }
+            break;
+        }
+        case 'd':
+        {
+            cout<<"-------Updating ChequeBook-------"<<endl;
+            cout<<"Enter checkbook ID to update : ";
+            cin>>id;
+            ChequeBook* cb = cbcollection.SearchChequeBookByID(id);
+            if(cb != nullptr)
+            {
+                cb->GetChequeBook();
+                cout<<"ChequeBook updated successfully!"<<endl;
+            }
+            else
+            {
+                cout<<"ChequeBook not found!"<<endl;
+            }
+            break;
+        }
+        case 'e':
+        {
+            cout<<"-------Deleting ChequeBook-------"<<endl;
+            cout<<"Enter chequebook ID to delete : ";
+            cin>>id;
+            if(cbcollection.DeleteChequeBook(id))
+            {
+                cout<<"ChequeBook deleted successfully!"<<endl;
+            }
+            else
+            {
+                cout<<"ChequeBook not found!"<<endl;
+            }
+            break;
+        }
+        case 'f':
+            cout << "Exiting ChequeBook Menu" << endl;
+        break;
+        default:
+        SetColour(RED);
+            cout<<"Invalid sub-choice"<<endl;
+        ResetColour();
+        break;
+        }
+    }while(subChoice != 'f');
+}
+
+void TransactionMenu(){
+    char subChoice;
+    do{
+    SetColour(GREEN);
+    cout<<"\n--------------------------------------"<<endl;
+    cout<<"        Transaction Management        "<<endl;
+    cout<<"--------------------------------------\n"<<endl;
+    ResetColour();
+    cout<<"a. Add transaction"<<endl;
+    cout<<"b. Display Transaction History"<<endl;
+    cout<<"c. Search Transaction"<<endl;
+    cout<<"d. Update Transaction"<<endl;
+    cout<<"e. Delete Transaction"<<endl;
+    cout<<"f. Exit "<<endl;
+    cout<<"\nEnter sub-choice [a-f] : ";
+    cin>> subChoice;
+    cin.ignore();
+    switch(subChoice){
+        case 'a': 
+        {
+            cout<<"-------Adding Transaction-------"<<endl;
+            Transaction t;
+            t.GetTransaction();
+            tcollection.AddTransaction(t);
+            break;
+        }
+        case 'b':
+        {
+            cout<<"-------Displaying Transaction History-------"<<endl;
+            tcollection.DisplayTransactions();
+            break;
+        }
+        case 'c':
+        {
+            cout<<"-------Searching Transaction-------"<<endl;
+            cout<<"Search by ID or Date (1 for ID, 2 for Date): ";
+            int choice;
+            cin>>choice;
+            switch(choice){
+                case 1: 
+                {
+                cout<<"Enter transaction ID to search : ";
+                cin>>id;
+                Transaction* t = tcollection.SearchTransactionByID(id);
+                if(t != nullptr)
+                {
+                    t->Display();
+                }
+                else
+                {
+                    cout<<"Transaction not found!"<<endl;
+                }
+                break;
+                }
+                case 2: 
+                {
+                    cout<<"Enter transaction date to search : ";
+                    Date date;
+                    date.AddDate();
+                    Transaction* t = tcollection.SearchTransactionByDate(date);
+                    if(t != nullptr)
+                    {
+                        t->Display();
+                    }
+                    else
+                    {
+                        cout<<"Transaction not found!"<<endl;
+                    }
+                    break;
+                }
+                default:
+                SetColour(RED);
+                    cout<<"Invalid choice!"<<endl;
+                ResetColour();
+                break;
+            }
+            break;
+        }
+        case 'd':
+        {
+            cout<<"-------Updating Transaction-------"<<endl;
+            cout<<"Enter transaction ID to update : ";
+            cin>>id;
+            Transaction* t = tcollection.SearchTransactionByID(id);
+            if(t != nullptr)
+            {
+                t->GetTransaction();
+                cout<<"Transaction updated successfully!"<<endl;
+            }
+            else
+            {
+                cout<<"Transaction not found!"<<endl;
+            }
+            break;
+        }
+        case 'e':
+        {
+            cout<<"-------Deleting Transaction-------"<<endl;
+            cout<<"Enter transaction ID to delete : ";
+            cin>>id;
+            if(tcollection.DeleteTransaction(id))
+            {
+                cout<<"Transaction deleted successfully!"<<endl;
+            }
+            else
+            {
+                cout<<"Transaction not found!"<<endl;
+            }
+            break;
+        }
+        case 'f':
+            cout << "Exiting Transaction Menu" << endl;
+        break;
+        default:
+        SetColour(RED);
+            cout<<"Invalid sub-choice"<<endl;
+        ResetColour();
+        break;
+        }
+    }while(subChoice != 'f');
+}
+
+void ServiceMenu(){
+    char subChoice;
+    do{
+    SetColour(GREEN);
+    cout<<"\n--------------------------------------"<<endl;
+    cout<<"          Service Management          "<<endl;
+    cout<<"--------------------------------------\n"<<endl;
+    ResetColour();
+    cout<<"a. Add services"<<endl;
+    cout<<"b. Display services"<<endl;
+    cout<<"c. Search services"<<endl;
+    cout<<"d. Update services"<<endl;
+    cout<<"e. Delete services"<<endl;
+    cout<<"f. Exit"<<endl;
+    cout<<"\nEnter sub-choice [a-f] : ";
+    cin>> subChoice;
+    switch(subChoice){
+        case 'a': 
+        {
+            cout<<"-------Adding Services-------"<<endl;
+            Services s;
+            s.GetService();
+            scollection.AddServices(s);
+            break;
+        }
+        case 'b':
+        {
+            cout<<"-------Displaying Services-------"<<endl;
+            scollection.DisplayServices();
+            break;
+        }
+        case 'c':
+        {
+            cout<<"-------Searching Services-------"<<endl;
+            cout<<"Search by ID or Type (1 for ID, 2 for Type): ";
+            int choice;
+            cin>>choice;
+            switch(choice){
+                case 1: 
+                {
+                cout<<"Enter service ID to search : ";
+                cin>>id;
+                Services* s = scollection.SearchServiceByID(id);
+                if(s != nullptr)
+                {
+                    s->Display();
+                }
+                else
+                {
+                    cout<<"Service not found!"<<endl;
+                }
+                break;
+                }
+                case 2: 
+                {
+                    cout<<"Enter service type to search : ";
+                    cin.ignore();
+                    getline(cin,name);
+                    Services* s = scollection.SearchServiceByType(name);
+                    if(s != nullptr)
+                    {
+                        s->Display();
+                    }
+                    else
+                    {
+                        cout<<"Service not found!"<<endl;
+                    }
+                    break;
+                }
+                default:
+                SetColour(RED);
+                    cout<<"Invalid choice!"<<endl;
+                ResetColour();
+                break;
+            }
+            break;
+        }
+        case 'd':
+        {
+            cout<<"-------Updating Services-------"<<endl;
+            cout<<"Enter service ID to update : ";
+            cin>>id;
+            Services* s = scollection.SearchServiceByID(id);
+            if(s != nullptr)
+            {
+                s->GetService();
+                cout<<"Service updated successfully!"<<endl;
+            }
+            else
+            {
+                cout<<"Service not found!"<<endl;
+            }
+            break;
+        }
+        case 'e':
+        {
+            cout<<"-------Deleting Services-------"<<endl;
+            cout<<"Enter service ID to delete : ";
+            cin>>id;
+            if(scollection.DeleteService(id))
+            {
+                cout<<"Service deleted successfully!"<<endl;
+            }
+            else
+            {
+                cout<<"Service not found!"<<endl;
+            }
+            break;
+        }
+        case 'f':
+            cout << "Exiting Service Menu" << endl;
+        break;
+        default:
+        SetColour(RED);
+            cout<<"Invalid sub-choice"<<endl;
+        ResetColour();
+        break;
+        }
+    }while(subChoice != 'f');
+}
+
+void BankCardMenu(){
+    char subChoice;
+    do{
+    SetColour(GREEN);
+    cout<<"\n--------------------------------------"<<endl;
+    cout<<"          BankCard Management          "<<endl;
+    cout<<"--------------------------------------\n"<<endl;
+    ResetColour();
+    cout<<"a. Add BankCard"<<endl;
+    cout<<"b. Display BankCard"<<endl;
+    cout<<"c. Search BankCard"<<endl;
+    cout<<"d. Update BankCard"<<endl;
+    cout<<"e. Delete BankCard"<<endl;
+    cout<<"f. Exit"<<endl;
+    cout<<"\nEnter sub-choice [a-f] : ";
+    cin>> subChoice;
+    switch(subChoice){
+        case 'a': 
+        {
+            cout<<"-------Adding BankCard-------"<<endl;
+            BankCard bankCard;
+            bankCard.GetBankCard();
+            bcollection.AddBankCard(bankCard);
+            break;
+        }
+        case 'b':
+        {
+            cout<<"-------Displaying BankCard-------"<<endl;
+            bcollection.DisplayBankCards();
+            break;
+        }
+        case 'c':
+        {
+            cout<<"-------Searching BankCard-------"<<endl;
+            cout<<"Search by CardNumber or Holder name (1 for CardNumber, 2 for Holder name): ";
+            int choice;
+            cin>>choice;
+            switch(choice){
+                case 1: 
+                {
+                    cout<<"Enter card number to search : ";
+                    string cardNum;
+                    cin.ignore();
+                    getline(cin,cardNum);
+                    BankCard* bankCard = bcollection.SearchBankCardByNumber(cardNum);
+                    if(bankCard != nullptr)
+                    {
+                        bankCard->Display();
+                    }
+                    else
+                    {
+                        cout<<"BankCard not found!"<<endl;
+                    }
+                    break;
+                }
+                case 2: 
+                {
+                    cout<<"Enter Card Holder name to search : ";
+                    getline(cin,name);
+                    BankCard* bankCard = bcollection.SearchBankCardByHolderName(name);
+                    if(bankCard != nullptr)
+                    {
+                        bankCard->Display();
+                    }
+                    else
+                    {
+                        cout<<"BankCard not found!"<<endl;
+                    }
+                    break;
+                }
+                default:
+                SetColour(RED);
+                    cout<<"Invalid choice!"<<endl;
+                ResetColour();
+                break;
+            }
+            break;
+        }
+        case 'd':
+        {
+            cout<<"-------Updating BankCard-------"<<endl;
+            cout<<"Enter card number to update : ";
+            string cardNum;
+            cin.ignore();
+            getline(cin,cardNum);
+            BankCard* bankCard = bcollection.SearchBankCardByNumber(cardNum);
+            if(bankCard != nullptr)
+            {
+                bankCard->GetBankCard();
+                cout<<"BankCard updated successfully!"<<endl;
+            }
+            else
+            {
+                cout<<"BankCard not found!"<<endl;
+            }
+            break;
+        }
+        case 'e':
+        {
+            cout<<"-------Deleting BankCard-------"<<endl;
+            cout<<"Enter card number to delete : ";
+            string cardNum;
+            cin>>cardNum;
+            if(bcollection.DeleteBankCard(cardNum))
+            {
+                cout<<"BankCard deleted successfully!"<<endl;
+            }
+            else
+            {
+                cout<<"BankCard not found!"<<endl;
+            }
+            break;
+        }
+        case 'f':
+            cout << "Exiting BankCard Menu" << endl;
+            break;
+        default:
+        SetColour(RED);
+            cout<<"Invalid sub-choice"<<endl;
+        ResetColour();
+        break;
+        }
+    }while(subChoice != 'f');
+}
+
+void AdminMainMenu()
+{
+    int choice;
+    do{
+    SetColour(GREEN);
+    cout<<"-------Admin Main Menu-------"<<endl;
+    ResetColour();
+    cout<<"1. Employee Management"<<endl;
+    cout<<"2. Account Holder Management"<<endl;
+    cout<<"3. Account Management"<<endl;
+    cout<<"4. ChequeBook Management"<<endl;
+    cout<<"5. Transaction Management"<<endl;
+    cout<<"6. Services Management"<<endl;
+    cout<<"7. BankCard Management"<<endl;
+    cout<<"8. Exit"<<endl;
+    cout<<"Enter your choice [1-8]: ";
+    int choice;
+    cin>>choice;
+        switch(choice)
+        {
+        case 1: EmployeeMenu(); break;
+        case 2: AccountHolderMenu(); break;
+        case 3: AccountMenu(); break;
+        case 4: ChequeBookMenu(); break;
+        case 5: TransactionMenu(); break;
+        case 6: ServiceMenu(); break;
+        case 7: BankCardMenu(); break;
+        case 8: cout<<"Exiting Admin Main Menu"<<endl; break;
+        default:
+            SetColour(RED);
+            cout<<"Invalid choice!"<<endl;
+            ResetColour();
+            break;
+        }
+    }while(choice != 8);
+}
+
+void EmployeeMainMenu()
+{
+    int choice;
+    do {
+        SetColour(PURPLE);
+        cout << "       EMPLOYEE MAIN MENU       " << endl;
+        ResetColour();
+        cout << "1. Account Holder Management"<<endl;
+        cout << "2. Account Management" << endl;
+        cout << "3. Transaction Management" << endl;
+        cout << "4. BankCard Management"<<endl;
+        cout << "5. Exit" << endl;
+        cout << "Enter your choice [1-5]: ";
+        cin >> choice;
+        switch (choice) 
+        {
+            case 1: AccountHolderMenu(); break;
+            case 2: AccountMenu(); break;
+            case 3: TransactionMenu(); break;
+            case 4: BankCardMenu(); break;
+            case 5: cout << "Exiting Employee Menu..." << endl; break;
+            default: cout << "Invalid choice!" << endl; break;
+        }
+    } while (choice != 3);
+}
+
+void AccountHolderMainMenu()
+{
+    int choice;
+    do {
+        SetColour(PURPLE);
+        cout << "       ACCOUNT HOLDER MAIN MENU       " << endl;
+        ResetColour();
+        cout << "1. View Account Details" << endl;
+        cout << "2. View Transactions" << endl;
+        cout << "3. Exit" << endl;
+        cout << "Enter your choice [1-3]: ";
+        cin >> choice;
+        switch (choice) 
+        {
+            case 1: AccountMenu(); break;
+            case 2: TransactionMenu(); break;
+            case 3: cout << "Exiting Account Holder Menu..." << endl; break;
+            default: cout << "Invalid choice!" << endl; break;
+        }
+    } while (choice != 3);
+}
+
+USERTYPE getUserTypeFromInput() {
+    int input;
+    while (true) {
+        cout << "Enter user type (0=UNKNOWN, 1=ADMIN, 2=EMPLOYEE, 3=ACCOUNT_HOLDER): ";
+        if (cin >> input) {
+            if (input >= 0 && input <= 3) {
+                return static_cast<USERTYPE>(input);
+            }
+        } else {
+            cin.clear();
+            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+        cout << "Invalid input. Please enter a number between 0-3.\n";
+    }
+}
+
+void Login() 
+{   
+    USERTYPE type = getUserTypeFromInput();
+    switch (type) {
+        case USERTYPE::UNKNOWN:
+            cout<<"Unknown usertype."<<endl;
+            break;
+        case USERTYPE::ADMIN:
+            cout<<"You have selected ADMIN usertype."<<endl;
+            AdminMainMenu();
+            break;
+        case USERTYPE::EMPLOYEE:
+            cout<<"You have selected EMPLOYEE usertype."<<endl;
+            EmployeeMainMenu();
+            break;
+        case USERTYPE::ACCOUNT_HOLDER:
+            cout<<"You have selected ACCOUNT_HOLDER usertype."<<endl;
+            AccountHolderMainMenu();
+            break;
+    }
+}
+
+int main() 
+{
+    adcollection.ReadDataFromFile("Admin.txt");
+    ecollection.ReadDataFromFile("Employee.txt");
+    hcollection.ReadDataFromFile("AccountHolder.txt");
+    bcollection.ReadDataFromFile("BankCard.txt");
+    tcollection.ReadDataFromFile("Transaction.txt");
+    cbcollection.ReadDataFromFile("Chequebook.txt");
+    scollection.ReadDataFromFile("Services.txt");
+    acollection.ReadDataFromFile("Account.txt");
+
+    ClearScreen();
+    int choice;
+    do {
+        SetColour(PURPLE);
+        SetColour(BOLD);
+        cout << "       THE BANK MANAGEMENT SYSTEM       " << endl;
+        ResetColour();
+        SetColour(YELLOW);
+        cout << "1. Login" << endl;
+        cout << "2. Exit" << endl;
+        ResetColour();
+        cout << "Enter your choice [1-2]: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                Login();
+                break;
+            case 2:
+                SetColour(GREEN);
+                cout << "\nExiting the program. Thank you!\n" << endl;
+                adcollection.WriteDataToFile("Admin.txt");
+                ecollection.WriteDataToFile("Employee.txt");
+                hcollection.WriteDataToFile("AccountHolder.txt");
+                bcollection.WriteDataToFile("BankCard.txt");
+                tcollection.WriteDataToFile("Transaction.txt");
+                cbcollection.WriteDataToFile("Chequebook.txt");
+                scollection.WriteDataToFile("Services.txt");
+                acollection.WriteDataToFile("Account.txt");
+                ResetColour();
+                break;
+            default:
+                SetColour(RED);
+                cout << "Invalid choice! Please enter a valid option [1-2]." << endl;
+                ResetColour();
+                break;
+        }
+    } while (choice != 2);
+    return 0;
+}
