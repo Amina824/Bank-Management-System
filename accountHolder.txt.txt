@@ -1,2 +1,0 @@
-1,user1,123,Usman,1,03003334444,usman@gmail.com,Multan
-2,user2,123,Ayesha,2,03004445555,ayesha@gmail.com,Islamabad
