@@ -168,8 +168,7 @@ g++ bank_management.cpp -o bank
 
 ## 👨‍💻 Author
 
-* Your Name
-* BS Computer Science Student
+* Amina Bibi
 * Language: **C++**
 
 ---
