@@ -1,2 +1,0 @@
-1,Bill Payment,2000
-2,Online Transfer,5000
