@@ -1,2 +1,0 @@
-Usman,ACC001,50000,Saving,Active
-Ayesha,ACC002,75000,Current,Active
